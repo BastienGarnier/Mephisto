@@ -1,0 +1,3 @@
+La communication avec les PNJs est effectuée par des dialogues à choix. Il est aussi possible pour le PJ d'écouter les conversations de certains PNJs. Il doit donc y avoir des conversations écrites entre certains PNJs. Ces conversations doivent être dynamiques, c'est-à-dire dépendre du contexte dans lequel les PNJs évoluent (exemple : marché -> négociation entre marchand et client).
+
+Les conversations peuvent créer des points d'intérêts pour le joueur.

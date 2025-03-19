@@ -1,0 +1,1 @@
+Si GameObject en position de départ : $d = (x_{d}, y_{d}, w, h)$ et position d'arrivée du déplacement $a = (x_{a}, y_{a}, w, h)$ alors on pose Rect de collision $r = (x_{d}, y_{d}, w + x_{a} - x_{d}, h + y_{a} - y_{d})$ et c'est $r$ qui est utilisé pour la collision de l'objet avec l'espace de jeu
