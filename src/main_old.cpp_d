@@ -1,0 +1,61 @@
+#include <iostream>
+
+#include <mephisto/core/structures/linkedholearray.hpp>
+#include <mephisto/core/structures/holeblockarray.hpp>
+
+#include <mephisto/core/components/components.hpp> 
+#include <mephisto/core/components/componentstorage.hpp>
+
+#include <mephisto/core/entities/entitymanager.hpp>
+
+#include <mephisto/core/application.hpp>
+#include <mephisto/core/utilities.hpp>
+
+#include <mephisto/core/queries/usetquery.hpp>
+#include <mephisto/windowhandler.hpp>
+
+#include <thread>
+
+using namespace mephisto;
+
+int main(int argc, const char *argv[])
+{
+	#ifdef DEBUG
+	std::cout << "=== Running in DEBUG MODE ===" << std::endl;
+	try {
+	#endif
+		Application app("MEPHISTO Tests");
+
+		// 1. créer espace pour les composants
+
+		app.entitymanager.componentstorage.create_component_storage<Window>();
+		app.entitymanager.componentstorage.create_component_storage<VulkanWindowSupport>();
+
+		// 2. définir les queries
+
+		// TODO : voir pour le destructeur des queries qui n'est pas appelé
+		app.entitymanager.add_query<Window, VulkanWindowSupport>((EntityQuery*)(new USetQuery())); //-> renvoie les objets de type Window
+
+		// 3. ajouter les entités au jeu
+
+		app.entitymanager.share("RootWindow", app.entitymanager.add_entity<Window, VulkanWindowSupport>(Passer<Window>(640, 480, "Test", Window::NoFlags), VulkanWindowSupport()));
+
+		// 4. ajouter les processus
+
+		app.add_processus((Processus*)(new WindowHandler(app))); 
+
+		// 5. lancer l'application
+
+		app.run();
+
+		// Libérer espace des composants
+		app.entitymanager.componentstorage.destroy_component_storage<Window>();
+		app.entitymanager.componentstorage.destroy_component_storage<VulkanWindowSupport>();
+	#ifdef DEBUG
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+	#endif
+	return EXIT_SUCCESS;
+}

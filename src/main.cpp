@@ -1,22 +1,28 @@
 #include <iostream>
 
-#include <fsge/core/structures/linkedholearray.hpp>
-#include <fsge/core/structures/holeblockarray.hpp>
+#include <mephisto/collections/linkedholearray.hpp>
+#include <mephisto/collections/holeblockarray.hpp>
 
-#include <fsge/core/components/components.hpp> 
-#include <fsge/core/components/componentstorage.hpp>
+#include <mephisto/components/components.hpp> 
+#include <mephisto/components/componentstorage.hpp>
 
-#include <fsge/core/entities/entitymanager.hpp>
+#include <mephisto/ressources/ressources.hpp>
+#include <mephisto/ressources/ressourcesmanager.hpp>
 
-#include <fsge/core/application.hpp>
-#include <fsge/core/utilities.hpp>
+#include <mephisto/entities/entitymanager.hpp>
 
-#include <fsge/core/queries/usetquery.hpp>
-#include <fsge/windowhandler.hpp>
+#include <mephisto/application/application.hpp>
+#include <mephisto/utilities.hpp>
 
-#include <thread>
+#include <mephisto/queries/usetquery.hpp>
 
-using namespace fsge;
+#include <mephisto/vulkan/context.hpp>
+
+#include <mephisto/window/handler.hpp>
+
+#include <mephisto/application/game.hpp>
+
+using namespace mephisto;
 
 int main(int argc, const char *argv[])
 {
@@ -24,35 +30,13 @@ int main(int argc, const char *argv[])
 	std::cout << "=== Running in DEBUG MODE ===" << std::endl;
 	try {
 	#endif
+		Game game;
 
-		std::cout << std::thread::hardware_concurrency() << std::endl;
-		Application app("FSGE Tests");
+		// game.entitymanager -> gestion des entités et composants
+		// game.ressourcesmanager -> gestion des ressources
+		// game.processusmanager ? gestion des processus ?
 
-		// 1. créer espace pour les composants
-
-		app.entitymanager.componentstorage.create_component_storage<Window>();
-		app.entitymanager.componentstorage.create_component_storage<VulkanSupport>();
-
-		// 2. définir les queries
-
-		// TODO : voir pour le destructeur des queries qui n'est pas appelé
-		app.entitymanager.add_query<Window, VulkanSupport>((EntityQuery*)(new USetQuery())); //-> renvoie les objets de type Window
-
-		// 3. ajouter les entités au jeu
-
-		app.entitymanager.share("RootWindow", app.entitymanager.add_entity<Window, VulkanSupport>(Passer<Window>(640, 480, "Test", Window::NoFlags), VulkanSupport()));
-
-		// 4. ajouter les processus
-
-		app.add_processus((Processus*)(new WindowHandler(app))); 
-
-		// 5. lancer l'application
-
-		app.run();
-
-		// Libérer espace des composants
-		app.entitymanager.componentstorage.destroy_component_storage<Window>();
-		app.entitymanager.componentstorage.destroy_component_storage<VulkanSupport>();
+		game.run();
 	#ifdef DEBUG
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;

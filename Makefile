@@ -41,7 +41,7 @@ DEFAULT_LDLIBS = -lm  -L/usr/local/gcc-14.2.0/lib/gcc/x86_64-linux-gnu/14.2.0
 
 
 ifeq ($(BUILD), release)
-DEFAULT_FLAGS += -DRELEASE -Ofast
+DEFAULT_FLAGS += -DRELEASE -O3
 else
 DEFAULT_FLAGS += -DDEBUG -O0 -g
 endif
