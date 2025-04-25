@@ -282,7 +282,7 @@ __attribute__((noinline))
 #endif
 static uint32_t bit_scan_forward(uint32_t a) {
     uint32_t r;
-    __asm("bsfl %1, %0" : "=r"(r) : "r"(a) : );
+    __asm("bsf %1, %0" : "=r"(r) : "r"(a) : );
     return r;
 }
 static inline uint32_t bit_scan_forward(uint64_t a) {
@@ -290,7 +290,7 @@ static inline uint32_t bit_scan_forward(uint64_t a) {
     if (lo) return bit_scan_forward(lo);
     uint32_t hi = uint32_t(a >> 32);
     return bit_scan_forward(hi) + 32;
-}
+    }
 #else  // MS compatible compilers under Windows
 static inline uint32_t bit_scan_forward(uint32_t a) {
     unsigned long r;
@@ -323,7 +323,7 @@ static inline uint32_t bit_scan_forward(uint64_t a) {
 static inline uint32_t bit_scan_reverse(uint32_t a) __attribute__((pure));
 static inline uint32_t bit_scan_reverse(uint32_t a) {
     uint32_t r;
-    __asm("bsrl %1, %0" : "=r"(r) : "r"(a) : );
+    __asm("bsr %1, %0" : "=r"(r) : "r"(a) : );
     return r;
 }
 #ifdef __x86_64__

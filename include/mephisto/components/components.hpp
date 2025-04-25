@@ -10,6 +10,13 @@
 
 namespace mephisto {
 	namespace Components {
+		template<typename T>
+		uint64_t type_id()
+		{
+		    static int id;
+    		return (uint64_t)&id;
+		};
+
 		namespace _details {
 			template<class...> struct type_list {};
 
@@ -80,7 +87,7 @@ namespace mephisto {
 			}
 		}
 
-		template<class T>
+		template<class T, auto unique = []{}>
 		consteval auto get_enum() {
 			return getn(_details::numbering<T>{});
 		}

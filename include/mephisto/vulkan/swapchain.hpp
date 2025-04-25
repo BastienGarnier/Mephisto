@@ -15,15 +15,12 @@
     #include <vulkan/vulkan_android.h>
 #endif
 
-#include "mephisto/vulkan/queuefamily.hpp"
+#include <mephisto/vulkan/context.hpp>
+#include <mephisto/vulkan/queuefamily.hpp>
+#include <mephisto/vulkan/swapchainsupport.hpp>
 
 namespace mephisto {
 	namespace vulkan {
-		struct SwapChainSupportDetails {
-			VkSurfaceCapabilitiesKHR capabilities;
-			std::vector<VkSurfaceFormatKHR> formats;
-			std::vector<VkPresentModeKHR> presentModes;
-		};
 
 		class Swapchain
 		{
@@ -31,14 +28,10 @@ namespace mephisto {
 			Swapchain();
 			~Swapchain();
 
-			void create(VkPhysicalDevice physical_device, VkDevice logical_device, VkSurfaceKHR surface);
-			void recreate(VkPhysicalDevice physical_device, VkDevice logical_device, VkSurfaceKHR surface);	
+			void create(Context* context, VkSurfaceKHR surface);
+			void recreate(Context* context, VkSurfaceKHR surface);	
 
-			static SwapChainSupportDetails query_swap_chain_support_details(VkPhysicalDevice device, VkSurfaceKHR surface);
-			static VkSurfaceFormatKHR choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats);
-			static VkPresentModeKHR choose_swap_present_mode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-			static VkExtent2D choose_swap_extent(const VkSurfaceCapabilitiesKHR& capabilities);
-
+			
 			VkFormat get_surface_format();
 			VkExtent2D get_extent();
 			VkFramebuffer get_framebuffer(uint32_t image_index);
@@ -46,18 +39,16 @@ namespace mephisto {
 
 			void cleanup(VkDevice logical_device);
 		private:
-			void create_render_pass(VkDevice device);
 			void create_swap_chain(VkPhysicalDevice physical_device, VkDevice logical_device, VkSurfaceKHR surface);
 			void create_image_views(VkDevice logical_device);
 			
-			void create_framebuffers(VkDevice logical_device);
+			void create_framebuffers(VkDevice logical_device, VkRenderPass render_pass);
 
 			VkSwapchainKHR m_swap_chain;
 			std::vector<VkImage> m_swap_chain_images;
 			VkFormat m_swap_chain_surface_format;
 			VkExtent2D m_swap_chain_extent;
 			std::vector<VkImageView> m_swap_chain_image_views;
-			VkRenderPass m_render_pass;
 			std::vector<VkFramebuffer> m_swap_chain_framebuffers;	
 		};
 	}

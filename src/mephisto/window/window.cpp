@@ -153,33 +153,3 @@ void Window::create_surface(VkInstance instance) {
 	}
 	#endif
 }
-
-void Window::create_synchronization_objects(VkDevice device) {
-	_vulkan.semaphores_image_available.resize(MAX_FRAMES_IN_FLIGHT);
-	_vulkan.semaphores_render_finished.resize(MAX_FRAMES_IN_FLIGHT);
-	_vulkan.fences_in_flight.resize(MAX_FRAMES_IN_FLIGHT);
-
-	VkSemaphoreCreateInfo semaphoreInfo{};
-	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	VkFenceCreateInfo fenceInfo{};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_vulkan.semaphores_image_available[i]) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create image available semaphore for a frame !");
-		}
-
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_vulkan.semaphores_render_finished[i]) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create render finished semaphore for a frame !");
-		}
-		if (vkCreateFence(device, &fenceInfo, nullptr, &_vulkan.fences_in_flight[i]) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create in flight fence for a frame !");
-		}
-	}
-}
-
-
-void Window::create_swapchain(VkPhysicalDevice physical_device, VkDevice logical_device) {
-	_vulkan.swapchain.create(physical_device, logical_device, _vulkan.surface);
-}

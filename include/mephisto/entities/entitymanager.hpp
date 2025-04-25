@@ -30,9 +30,9 @@ namespace mephisto {
 			e.id = id;
 			componentstorage._new_components_instances<Cpnts...>(e, std::forward<Passer<Cpnts>>(components)...);
 			constexpr auto entity_arch = Archetype<Cpnts...>();
-			for (auto& [key, value]: _queries) {
+			for (auto& [key, query]: _queries) {
 				if (key < entity_arch) {
-					value->add_entity(id);
+					query->add_entity(id);
 				}
 			}
 			return id;
@@ -51,10 +51,10 @@ namespace mephisto {
 				componentstorage._new_components_instances<Cpnts...>(e, std::forward<Passer<Cpnts>>(components)...);
 			}
 			constexpr auto entity_arch = Archetype<Cpnts...>();
-			for (auto& [key, value]: _queries) {
+			for (auto& [key, query]: _queries) {
 				if (key < entity_arch) {
 					for (EntityId id : v) {
-						value->add_entity(id);
+						query->add_entity(id);
 					}
 				}
 			}
@@ -64,9 +64,9 @@ namespace mephisto {
 		void remove_entity(EntityId eid) {
 			componentstorage._del_components_instances<Cpnts...>(_entities[eid]);
 			constexpr auto entity_arch = Archetype<Cpnts...>();
-			for (auto& [key, value]: _queries) {
+			for (auto& [key, query]: _queries) {
 				if (key < entity_arch) {
-					value->remove_entity(eid);
+					query->remove_entity(eid);
 				}
 			}
 			_entities.del_instance(eid);
@@ -74,8 +74,8 @@ namespace mephisto {
 		}
 		
 		template <class... Cpnts>
-		void add_query(EntityQuery *eq) {
-			_queries[Archetype<Cpnts...>()] = eq;
+		void add_query(EntityQuery *query) {
+			_queries[Archetype<Cpnts...>()] = query;
 		}
 
 		template <class... Cpnts>
@@ -83,8 +83,8 @@ namespace mephisto {
 			return _queries[Archetype<Cpnts...>()];
 		}
 
-		Entity &get_entity(EntityId eid) {
-			return _entities[eid];
+		Entity* get_entity(EntityId eid) {
+			return &(_entities[eid]);
 		}
 
 		void share(const std::string& name, EntityId eid) {

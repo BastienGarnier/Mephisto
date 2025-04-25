@@ -1,16 +1,35 @@
 #ifndef _MEPHISTO_GRAPHICS_PIPELINE_HPP_INCLUDED
 #define _MEPHISTO_GRAPHICS_PIPELINE_HPP_INCLUDED
 
+#include <vector>
 #include <stdexcept>
+
 #include <vulkan/vulkan.h>
+
+#include <mephisto/ressources/ressources.hpp>
+
+#include <mephisto/application/application.hpp>
+
+#include <mephisto/ressources/filesystem.hpp>
+
+#include <mephisto/mesh/vertex.hpp>
+
+#include <mephisto/vulkan/context.hpp>
+
 
 namespace mephisto {
 	namespace vulkan {
 		class GraphicsPipeline
 		{
+		RegisterAsRessource(GraphicsPipeline);
 		public:
-			GraphicsPipeline();
+			GraphicsPipeline(Context* vk_context, const std::string& vert_filename, const std::string& frag_filename);
 			~GraphicsPipeline();
+
+			void destroy(Context* vk_context) {
+				vkDestroyPipeline(vk_context->logical_device(), _graphics_pipeline, nullptr);
+				vkDestroyPipelineLayout(vk_context->logical_device(), _pipeline_layout, nullptr);
+			}
 
 			VkPipelineLayout layout() {
 				return _pipeline_layout;
@@ -20,6 +39,8 @@ namespace mephisto {
 				return _graphics_pipeline;
 			}
 		private:
+			VkShaderModule create_shader_module(Context* vk_context, const std::vector<char>& code);
+
 			VkPipelineLayout _pipeline_layout;
 			VkPipeline _graphics_pipeline;
 		};

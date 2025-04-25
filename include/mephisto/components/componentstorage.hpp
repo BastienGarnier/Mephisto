@@ -22,20 +22,22 @@ namespace mephisto {
 		}
 
 		template <typename T>
-		inline void create_component_storage() {
+		void create_component_storage() {
+			std::cout << Components::get_enum<T>() << std::endl;
 			instances[Components::get_enum<T>()] = (Object*)(new LinkedHoleArray<T>);
 		}
 
 		template <typename T>
-		inline void destroy_component_storage() {
+		void destroy_component_storage() {
 			((LinkedHoleArray<T>*)(instances[Components::get_enum<T>()]))->~LinkedHoleArray();
 		}
 
 		template <typename T>
-		inline T& get_component(Entity e) {
+		T* get_component(Entity *e) {
+			std::cout << Components::get_enum<T>() << std::endl;
 			constexpr ComponentId component = Components::get_enum<T>();
-			uint32_t component_indice = e.components_id[Components::get_enum<T>()];
-			return (*((LinkedHoleArray<T>*)instances[component]))[component_indice];
+			uint32_t component_indice = e->components_id[Components::get_enum<T>()];
+			return &(*((LinkedHoleArray<T>*)instances[component]))[component_indice];
 		}
 
 		// template <auto C = 0, auto unique = []{}>

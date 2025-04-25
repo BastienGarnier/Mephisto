@@ -47,24 +47,23 @@ namespace mephisto {
 				return _winref;
 			}
 
-			void destroy(VkDevice device, VkInstance instance) {
+			void destroy(Context* context) {
+				_vulkan.swapchain.cleanup(context->logical_device());
+				vkDestroySurfaceKHR(context->instance(), _vulkan.surface, nullptr);
 				#if defined(__linux__)
 				xcb_destroy_window(_connection, _winref);
 				xcb_disconnect(_connection);
 				#endif
-				for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-					vkDestroySemaphore(device, _vulkan.semaphores_image_available[i], nullptr);
-					vkDestroySemaphore(device, _vulkan.semaphores_render_finished[i], nullptr);
-					vkDestroyFence(device, _vulkan.fences_in_flight[i], nullptr);
-				}
-				_vulkan.swapchain.cleanup(device);
-				vkDestroySurfaceKHR(instance, _vulkan.surface, nullptr);
 			}
 			Window(unsigned short width, unsigned short height, const char *caption, Flags flags, VkInstance instance);
 			
-			unsigned short int width();
+			inline unsigned short int width() const {
+				return _width;
+			}
 			void set_width(unsigned short int width);
-			unsigned short int height();
+			inline unsigned short int height() const {
+				return _height;
+			}
 			void set_height(unsigned short int height);
 			void rename(const char *caption);
 
@@ -77,18 +76,17 @@ namespace mephisto {
 				return _vulkan.surface;
 			}
 
-			static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+			void initialize(Context *context) {
+				_vulkan.swapchain.create(context, _vulkan.surface);
+			}
 
-			void initialize(VkPhysicalDevice physical_device, VkDevice logical_device) {
-				create_synchronization_objects(logical_device);
-				create_swapchain(physical_device, logical_device);
+			inline Swapchain& swapchain() {
+				return _vulkan.swapchain;
 			}
 		
 		private:
 			void create_surface(VkInstance instance);
-			void create_synchronization_objects(VkDevice device);
-			void create_swapchain(VkPhysicalDevice physical_device, VkDevice logical_device);
-
+			
 			uint32_t _width;
 			uint32_t _height;
 
@@ -114,15 +112,11 @@ namespace mephisto {
 
 			// Graphics support
 			struct {
+
 				VkSurfaceKHR surface;
 				
 				// Vulkan Swapchain
 				Swapchain swapchain;
-					
-				// GPU Synchronization
-				std::vector<VkSemaphore> semaphores_image_available;
-				std::vector<VkSemaphore> semaphores_render_finished;
-				std::vector<VkFence> fences_in_flight;
 			} _vulkan;
 	};
 }

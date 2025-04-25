@@ -51,7 +51,9 @@ namespace mephisto {
 		HugePage &hp = _hugepages[page];
 		(hp.get<Instance>(index))->valid = 1; // valide la nouvelle instance
 		_first_invalid_instance = (new_index == _first_invalid_instance) ? (hp.get<Instance>(index))->next_hole : -1; // get la prochaine invalide
+		
 		new (&(hp.get<Instance>(index))->e) T(std::forward<Args>(args)...);
+
 		_size++;
 		if (_first_invalid_instance == (uint32_t)-1 && _tail_index >= _hugepages.size() * _count_by_page) {
 			_hugepages.resize(_hugepages.size() + 1);
@@ -106,7 +108,7 @@ namespace mephisto {
 		HugePage &hp = _hugepages[page];
 		(hp.get<Instance>(index))->valid = 1; // valide la nouvelle instance
 		_first_invalid_instance = (new_index == _first_invalid_instance) ? (hp.get<Instance>(index))->next_hole : -1; // get la prochaine invalide
-		new (&(hp.get<Instance>(index))->e) T(t.value);
+		new (&((hp.get<Instance>(index))->e)) T(t.value);
 		_size++;
 		if (_first_invalid_instance == (uint32_t)-1 && _tail_index >= _hugepages.size() * _count_by_page) {
 			_hugepages.resize(_hugepages.size() + 1);

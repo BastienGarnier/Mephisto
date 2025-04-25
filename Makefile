@@ -29,8 +29,13 @@ EXT_OTHERS = h hpp tpp json frag vert geom tesc tese comp glsl
 LDLIBS = xcb xcb-sync xcb-xkb vulkan
 
 # Drapeaux des compilateurs C et C++
-CFLAGS = -masm=intel -mfpmath=sse -mmmx -msse -msse2 -mavx2 -mfma -m64 # Y a les extensions MMX, SSE1, SSE2 et AVX
-CPPFLAGS = -std=c++23 -masm=intel -mfpmath=sse -mmmx -msse -msse2 -mavx2 -mfma -m64 # Y a les extensions MMX, SSE1, SSE2 et AVX
+CFLAGS = -masm=intel -mfpmath=sse  -mfma -m64 # Y a les extensions MMX, SSE1, SSE2 et AVX
+CFLAGS += -mmmx -msse -msse2 -mavx2 # extensions d'instructions SIMD sur les flottants
+CFLAGS += -mrdrnd -mrdseed # extensions pour les générations aléatoires physiques
+
+CPPFLAGS = -std=c++23 -masm=intel -mfpmath=sse  -mfma -m64 # Y a les extensions MMX, SSE1, SSE2 et AVX
+CPPFLAGS += -mmmx -msse -msse2 -mavx2 # extensions d'instructions SIMD sur les flottants
+CPPFLAGS += -mrdrnd -mrdseed # extensions pour les générations aléatoires physiques
 
 ###############################################
 # LE CODE CI-DESSOUS NE DOIT PAS ETRE MODIFIE #
@@ -41,7 +46,7 @@ DEFAULT_LDLIBS = -lm  -L/usr/local/gcc-14.2.0/lib/gcc/x86_64-linux-gnu/14.2.0
 
 
 ifeq ($(BUILD), release)
-DEFAULT_FLAGS += -DRELEASE -O3
+DEFAULT_FLAGS += -DRELEASE -Ofast # fast permet les optis mathématiques même si moins bien dans le cas général
 else
 DEFAULT_FLAGS += -DDEBUG -O0 -g
 endif

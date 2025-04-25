@@ -72,6 +72,24 @@ void Context::setup_debug_messenger() {
 
 }
 
+void Context::create_command_pool() {
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = _qfi.graphicsFamily.value();
+	if (vkCreateCommandPool(_logical_device, &poolInfo, nullptr, &_command_pool) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create Command Pool !");
+	}
+
+	VkCommandPoolCreateInfo shortPoolInfo{};
+	shortPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	shortPoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+	shortPoolInfo.queueFamilyIndex = _qfi.graphicsFamily.value();
+	if (vkCreateCommandPool(_logical_device, &shortPoolInfo, nullptr, &_short_command_pool) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create Command Pool !");
+	}
+}
+
 void Context::pick_physical_device(VkSurfaceKHR surface) {
 	_physical_device = VK_NULL_HANDLE;
 	uint32_t device_count = 0;
@@ -99,6 +117,8 @@ void Context::pick_physical_device(VkSurfaceKHR surface) {
 	vkGetPhysicalDeviceFeatures(_physical_device, &deviceFeatures);
 	std::cout << "Find GPU : " << deviceProperties.deviceName << std::endl;
 	_qfi = find_queue_families(_physical_device, surface);
+	_swapchain_support = SwapChainSupportDetails::query_swap_chain_support_details(_physical_device, surface);
+	_surface_format = SwapChainSupportDetails::choose_swap_surface_format(_swapchain_support.formats);
 }
 
 int Context::rate_device_suitability(VkPhysicalDevice device, VkSurfaceKHR surface) {
@@ -116,7 +136,7 @@ int Context::rate_device_suitability(VkPhysicalDevice device, VkSurfaceKHR surfa
 
 	bool swapChainAdequate = false;
 	if (extensions_supported) {
-		SwapChainSupportDetails swapChainSupport = Swapchain::query_swap_chain_support_details(device, surface);
+		SwapChainSupportDetails swapChainSupport = SwapChainSupportDetails::query_swap_chain_support_details(device, surface);
 		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 	}
 	if (!swapChainAdequate) {
@@ -191,4 +211,45 @@ bool Context::check_device_extensions(VkPhysicalDevice device) {
 	}
 
 	return required_extensions.empty();
+}
+
+void Context::create_render_pass() {
+	VkAttachmentDescription colorAttachment{};
+	colorAttachment.format = _surface_format.format; // -> même format pour toutes les fenêtres puisque même OS
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // efface le framebuffer avant le rendu
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // contenu affiché est stocké et pourra être lu plus tard
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	VkAttachmentReference colorAttachmentRef{};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass{};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+	VkRenderPassCreateInfo render_pass_info{};
+	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	render_pass_info.attachmentCount = 1;
+	render_pass_info.pAttachments = &colorAttachment;
+	render_pass_info.subpassCount = 1;
+	render_pass_info.pSubpasses = &subpass;
+	render_pass_info.dependencyCount = 1;
+	render_pass_info.pDependencies = &dependency;
+	if (vkCreateRenderPass(_logical_device, &render_pass_info, nullptr, &_render_pass) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create render pass !");
+	}
 }

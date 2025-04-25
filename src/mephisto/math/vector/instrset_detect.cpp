@@ -11,7 +11,7 @@
 * Apache License version 2.0 or later.
 ******************************************************************************/
 
-#include "mephisto/math/vector/instrset.h"
+#include <mephisto/math/vector/instrset.h>
 
 #ifdef VCL_NAMESPACE
 namespace VCL_NAMESPACE {
