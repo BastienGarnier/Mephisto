@@ -1,5 +1,6 @@
-#ifndef VERTEX_H_INCLUDED
-#define VERTEX_H_INCLUDED
+#pragma once
+#ifndef _MEPHISTO_MESH_VERTEX_H_INCLUDED
+#define _MEPHISTO_MESH_VERTEX_H_INCLUDED
 
 #include <array>
 #include <vulkan/vulkan.h>

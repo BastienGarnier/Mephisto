@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_GAME_HPP_INCLUDED
 #define _MEPHISTO_GAME_HPP_INCLUDED
 
@@ -21,12 +22,11 @@ namespace mephisto {
 			_context->initialize(_window->surface());
 			_window->initialize(_context);
 
-			add_processus((Processus*)(new WindowHandler(this)), 0);
+			processusmanager.add((Processus*)(new WindowHandler(this)), 0);
 		}
 		~GraphicalApplication() {
 			vkDeviceWaitIdle(_context->logical_device());
-			
-			
+
 			_window->destroy(_context);
 			_context->destroy();
 		}
@@ -39,7 +39,6 @@ namespace mephisto {
 			return _window;
 		}
 	private:
-		
 		vulkan::Context* _context;
 		Window* _window;
 	};

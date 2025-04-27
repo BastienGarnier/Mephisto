@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_CPUID_HPP_INCLUDED
 #define _MEPHISTO_CPUID_HPP_INCLUDED
 

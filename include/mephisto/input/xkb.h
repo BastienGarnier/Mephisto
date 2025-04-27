@@ -7,7 +7,7 @@
 Lignes 726 et 2004, explicit est remplacé par m_explicit pour éviter les bogues de compilation à l'importation
 en C++ (car explicit est un mot-clé du langage C++)
 */
-
+#pragma once
 #ifndef __XKB_H
 #define __XKB_H
 

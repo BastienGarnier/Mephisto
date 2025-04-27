@@ -8,22 +8,44 @@ const std::vector<const char*> device_extensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
+const std::vector<const char*> validation_layers = {
+	"VK_LAYER_KHRONOS_validation"
+};
+
+#ifdef NDEBUG
+	const bool enable_validation_layers = false;
+#else
+	const bool enable_validation_layers = true;
+#endif
+
+bool check_validation_layer_support() {
+	uint32_t layer_count = 0;
+	vkEnumerateInstanceLayerProperties(&layer_count, NULL);
+	if (layer_count > 0) {
+		std::vector<VkLayerProperties> available_layers(layer_count);
+		vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
+		for (const char* layerName : validation_layers) {
+			bool layerFound = false;
+			for (const auto& layerProperties : available_layers) {
+				if (strcmp(layerName, layerProperties.layerName) == 0) {
+					layerFound = true;
+					break;
+				}
+			}
+			if (!layerFound) {
+				return false;
+			}
+		}
+	} else {
+		return false;
+	}
+	return true;
+}
+
 
 void Context::create_instance() {
-	{
-		uint32_t layer_count = 0;
-		vkEnumerateInstanceLayerProperties(&layer_count, NULL);
-		if (layer_count > 0) {
-			std::cout << layer_count << " Layers" << std::endl;
-			std::vector<VkLayerProperties> layer_properties;
-			layer_properties.resize(layer_count);
-			vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data());
-			for (uint32_t i = 0; i < layer_count; i++) {
-				std::cout << "\t" << layer_properties[i].layerName << " : " << layer_properties[i].description << std::endl;
-			}
-		} else {
-			std::cout << "No layers" << std::endl;
-		}
+	if (enable_validation_layers && !check_validation_layer_support()) {
+		throw std::runtime_error("Validation layers requested but not available.");
 	}
 
 	VkApplicationInfo app_info{};
@@ -53,7 +75,12 @@ void Context::create_instance() {
 	create_info.flags = 0;
 	create_info.enabledExtensionCount = enabled_extensions.size();
 	create_info.ppEnabledExtensionNames = enabled_extensions.data();
-	create_info.enabledLayerCount = 0;
+	if (enable_validation_layers) {
+		create_info.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
+		create_info.ppEnabledLayerNames = validation_layers.data();
+	} else {
+		create_info.enabledLayerCount = 0;
+	}
 
 	VkResult result = vkCreateInstance(&create_info, nullptr, &_instance);
 
@@ -198,11 +225,6 @@ bool Context::check_device_extensions(VkPhysicalDevice device) {
 
 	std::vector<VkExtensionProperties> available_extensions(extension_count);
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
-
-	// std::cout << extension_count << " extensions" << std::endl;
-	// for (uint32_t i = 0; i < extension_count; i++) {
-	// 	std::cout << "\t" << available_extensions[i].extensionName << std::endl;
-	// }
 
 	std::set<std::string> required_extensions(device_extensions.begin(), device_extensions.end());
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_MATRIX_H_INCLUDED
 #define _MEPHISTO_MATRIX_H_INCLUDED
 

@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _MEPHISTO_TESTS_BENCHMARK_HPP_INCLUDED
+#define _MEPHISTO_TESTS_BENCHMARK_HPP_INCLUDED
 
 #include <stdio.h>
 #include <iostream>
@@ -90,3 +92,5 @@ namespace mephisto {
 			void (* _noopy)(void);
 	};
 }
+
+#endif

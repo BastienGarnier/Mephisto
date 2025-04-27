@@ -15,38 +15,72 @@ Mesh::~Mesh() {
 }
 
 void Mesh::destroy() {
-	
-	_staging.destroy();
+	_ibo.destroy();
 	_vbo.destroy();
 }
 
 void Mesh::add_vertex(Vertex v) {
-	m_vertices.push_back(v);
+	_vertices.push_back(v);
 }
 
-std::vector<Vertex> Mesh::get_vertices() {
-	return m_vertices;
+void Mesh::add_indice(uint16_t i) {
+	_indices.push_back(i);
 }
+
+// TODO : optimiser pour être sûr qu'il n'y a pas de copie
+std::vector<Vertex> Mesh::get_vertices() {
+	return _vertices;
+}
+
+// TODO : optimiser pour être sûr qu'il n'y a pas de copie
+std::vector<uint16_t> Mesh::get_indices() {
+	return _indices;
+}
+
 
 Buffer Mesh::get_vbo() {
 	return _vbo;
 }
 
+Buffer Mesh::get_ibo() {
+	return _ibo;
+}
 
-void Mesh::create_vertex_buffer(Context* context) {
-	VkDeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
+void Mesh::create_index_buffer(Context *context) {
+	VkDeviceSize bufferSize = sizeof(_indices[0]) * _indices.size();
 
-	_staging = Buffer(context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+	Buffer staging(context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-	_staging.fill(m_vertices.data());
+	staging.fill(_indices.data());
+
+	_ibo = Buffer(context, bufferSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	
+	_ibo.copy(staging);
+
+	staging.destroy();
+}
+
+void Mesh::create_vertex_buffer(Context* context) {
+	VkDeviceSize bufferSize = sizeof(_vertices[0]) * _vertices.size();
+
+	Buffer staging(context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	staging.fill(_vertices.data());
 
 	_vbo = Buffer(context, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT |
 		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	
-	_vbo.copy(_staging);	
+	_vbo.copy(staging);
+
+	staging.destroy();
 }
 

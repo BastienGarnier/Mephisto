@@ -2,6 +2,5 @@
 
 using namespace mephisto;
 
-ComponentStorage::ComponentStorage() {
-	count = 0;
+ComponentStorage::ComponentStorage() : instances(1) {
 }

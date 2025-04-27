@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_GRAPHICS_PIPELINE_HPP_INCLUDED
 #define _MEPHISTO_GRAPHICS_PIPELINE_HPP_INCLUDED
 
@@ -5,15 +6,8 @@
 #include <stdexcept>
 
 #include <vulkan/vulkan.h>
-
-#include <mephisto/ressources/ressources.hpp>
-
-#include <mephisto/application/application.hpp>
-
 #include <mephisto/ressources/filesystem.hpp>
-
 #include <mephisto/mesh/vertex.hpp>
-
 #include <mephisto/vulkan/context.hpp>
 
 
@@ -21,7 +15,6 @@ namespace mephisto {
 	namespace vulkan {
 		class GraphicsPipeline
 		{
-		RegisterAsRessource(GraphicsPipeline);
 		public:
 			GraphicsPipeline(Context* vk_context, const std::string& vert_filename, const std::string& frag_filename);
 			~GraphicsPipeline();

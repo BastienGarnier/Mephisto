@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef _MEPHISTO_QUERIES_USET_HPP_INCLUDED
+#define _MEPHISTO_QUERIES_USET_HPP_INCLUDED
 #include <unordered_set>
 #include <iostream>
 
@@ -31,3 +32,4 @@ namespace mephisto {
 		std::unordered_set<EntityId> entities;
 	};
 }
+#endif

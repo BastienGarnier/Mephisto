@@ -872,7 +872,7 @@ Vec8i ascii2bin(
 
     // identify tokens in string
     uint64_t digits = to_bits(Vec64uc(str) - Vec64uc('0') <= Vec64uc(9)); // position of digits 0-9
-    uint64_t signs  = to_bits(str == '+' | str == '-');                   // position of +/- signs
+    uint64_t signs  = to_bits((str == '+') | (str == '-'));               // position of +/- signs
     uint64_t space  = to_bits(Vec64c(str & Vec64c(~0x20)) == 0);          // position of space/blanks
 
     // check for illegal characters
@@ -988,10 +988,10 @@ Vec8i ascii2bin(
     int32_t endlist[8] = {0};
 
     for (int f = 0; f < numdatr; f++) {          // loop to find each field
-        uint64_t begn2 = begn & begn - 1;        // remove lowest bit
+        uint64_t begn2 = begn & (begn - 1);        // remove lowest bit
         uint64_t bpos = begn & ~ begn2;
         if (bpos) beglist[f] = bit_scan_forward(bpos);// index to this bit = begin of number
-        uint64_t endn2 = endn & endn - 1;        // remove lowest bit
+        uint64_t endn2 = endn & (endn - 1);        // remove lowest bit
         uint64_t epos = endn & ~ endn2;
         if (epos == 0) break;
         endlist[f] = bit_scan_forward(epos);// index to this bit = end of number
@@ -1177,10 +1177,6 @@ static Vec8i ascii2bin_fallback(const char * string, int * chars_read, int * err
     bool negative = false;   // number is negative
     int32_t results[8] = {0};// result array
     int64_t val = 0;         // current value
-
-#ifdef  _DEBUG   // for debugging only. You may remove this
-    // printf("\nFallback");
-#endif
 
     // loop through string
     for (s = 0; s < max_stringlen; s++) {

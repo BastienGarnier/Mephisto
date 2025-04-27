@@ -1,0 +1,9 @@
+#pragma once
+#ifndef _MEPHISTO_VULKAN_DESCRIPTORSET_HPP_INCLUDED
+#define _MEPHISTO_VULKAN_DESCRIPTORSET_HPP_INCLUDED
+
+namespace mephisto {
+	
+}
+
+#endif

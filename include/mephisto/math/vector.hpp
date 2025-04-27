@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_VECTOR_H_INCLUDED
 #define _MEPHISTO_VECTOR_H_INCLUDED
 

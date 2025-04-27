@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_CORE_RESSOURCES_MANAGER_HPP_INCLUDED
 #define _MEPHISTO_CORE_RESSOURCES_MANAGER_HPP_INCLUDED
 
@@ -12,11 +13,13 @@ namespace mephisto {
 	{
 	public:
 		RessourcesManager() {}
-		~RessourcesManager() {}
+		~RessourcesManager() {
+			
+		}
 
 		template <typename T>
 		T* add(std::string name, T* ress) {
-			_ressources[Ressources::get_enum<T>()][name] = Object::make(ress);
+			_ressources[(uint64_t)Ressource<T>::get_id()][name] = Object::make(ress);
 			return ress;
 		}
 
@@ -31,22 +34,22 @@ namespace mephisto {
 
 		template <typename T>
 		void remove(std::string name) {
-			T* t = (T*)(_ressources[Ressources::get_enum<T>()][name]);
-			_ressources[Ressources::get_enum<T>()].erase(name);
+			T* t = (T*)(_ressources[(uint64_t)Ressource<T>::get_id()][name]);
+			_ressources[(uint64_t)Ressource<T>::get_id()].erase(name);
 			t->~T();
 		}
 
 		template <typename T>
 		T* get(std::string name) {
-			return (T*)(_ressources[Ressources::get_enum<T>()][name]);
+			return (T*)(_ressources[(uint64_t)Ressource<T>::get_id()][name]);
 		}
 
 		template <typename T>
 		std::unordered_map<std::string, Object*> all() {
-			return _ressources[Ressources::get_enum<T>()];
+			return _ressources[(uint64_t)Ressource<T>::get_id()];
 		}
 		
-		std::unordered_map<uint32_t, std::unordered_map<std::string, Object*>> _ressources; // ressources[i] donne la table des ressources de type Ressources::get_type<i>()
+		std::unordered_map<uint64_t, std::unordered_map<std::string, Object*>> _ressources; // ressources[i] donne la table des ressources de type Ressources::get_type<i>()
 	};
 }
 #endif

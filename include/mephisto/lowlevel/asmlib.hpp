@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_ASMLIB_HPP_INCLUDED
 #define _MEPHISTO_ASMLIB_HPP_INCLUDED
 

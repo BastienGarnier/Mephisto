@@ -6,7 +6,7 @@ Window::Window(unsigned short width, unsigned short height, const char *caption,
 	#if defined(__linux__)
 	int screen_prefer = 0;
 	_connection = xcb_connect(NULL, &screen_prefer);
-	#if defined DEBUG
+	#ifndef NDEBUG
 	if (xcb_connection_has_error(_connection)) {
 		throw std::runtime_error("XCB connection error");
 	}

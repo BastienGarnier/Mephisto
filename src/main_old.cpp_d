@@ -20,7 +20,7 @@ using namespace mephisto;
 
 int main(int argc, const char *argv[])
 {
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "=== Running in DEBUG MODE ===" << std::endl;
 	try {
 	#endif
@@ -51,7 +51,7 @@ int main(int argc, const char *argv[])
 		// Libérer espace des composants
 		app.entitymanager.componentstorage.destroy_component_storage<Window>();
 		app.entitymanager.componentstorage.destroy_component_storage<VulkanWindowSupport>();
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;

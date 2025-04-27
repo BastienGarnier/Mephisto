@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_APPLICATION_HPP_INCLUDED
 #define _MEPHISTO_APPLICATION_HPP_INCLUDED
 
@@ -6,7 +7,7 @@
 #include <string>
 #include <list>
 
-#include <mephisto/processus.hpp>
+#include <mephisto/processus/processusmanager.hpp>
 #include <mephisto/entities/entitymanager.hpp>
 #include <mephisto/ressources/ressourcesmanager.hpp>
 
@@ -14,30 +15,26 @@ namespace mephisto {
 	class Application
 	{
 	public:
-		Application(std::string name) : is_open(true), name(name) {}
-		Application() : is_open(true), name("Unnamed") {}
+		Application() : is_open(true) {}
 		~Application();
 
 		inline void run() {
-			start();
+			processusmanager.start_all();
 			while (is_open) {
-				update();
+				processusmanager.update_all(&is_open);
 			}
 		}
-		void start();
-		void update();
-
-		void add_processus(Processus *p, uint32_t priority = 1); // 0 = system
-
-		void close();
+		inline void close() {
+			is_open = false;
+		}
 
 		bool is_open;
-		std::string name;
 		EntityManager entitymanager;
 		RessourcesManager ressourcesmanager;
+		ProcessusManager processusmanager;
 
 	private:
-		std::vector<std::list<Processus*>> _processus;
+		
 	};
 }
 #endif

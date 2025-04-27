@@ -1,20 +1,37 @@
+#pragma once
 #ifndef _MEPHISTO_CORE_COMPONENTS_TYPESENUM_HPP_INCLUDED
 #define _MEPHISTO_CORE_COMPONENTS_TYPESENUM_HPP_INCLUDED
 
+#include <stdint.h>
+
 #include <type_traits>
 #include <tuple>
+
+#include <mephisto/components/sysconstants.hpp>
 
 #define RegisterAsComponent(COMPONENT) [[maybe_unused]] constinit const static bool __mephisto_component_declaration_hack = (mephisto::Components::declare<COMPONENT>(), true)
 
 #pragma GCC diagnostic ignored "-Wnon-template-friend"
 
 namespace mephisto {
+	template <typename T>
+	class Component
+	{
+	public:
+		inline static constexpr const uint64_t get_id()
+		{
+			return ((uint64_t)(&id) - MEPHISTO_COMPONENT_ID_OFFSET);
+		}
+	private:
+		static uint8_t __attribute__((section(".componentsSection"))) id;
+	};
+
 	namespace Components {
 		template<typename T>
-		uint64_t type_id()
+		constexpr uint64_t type_id()
 		{
-		    static int id;
-    		return (uint64_t)&id;
+			static constexpr int id;
+			return (uint64_t)&id;
 		};
 
 		namespace _details {

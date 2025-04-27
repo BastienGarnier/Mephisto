@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_RENDERER_HPP_INCLUDED
 #define _MEPHISTO_RENDERER_HPP_INCLUDED
 
@@ -19,13 +20,8 @@ namespace mephisto {
 		 	pipeline = pipeline;
 		 	mesh = mesh;
 		 }
-
-		// Renderer(const Renderer &r) : pipeline(r.pipeline), mesh(r.mesh) {
-		// 	std::cout << this << std::endl;
-		// }
 		~Renderer() {}
 
-		uint32_t test;
 		vulkan::GraphicsPipeline* pipeline;
 		vulkan::Mesh* mesh;
 

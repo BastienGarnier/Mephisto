@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_SYSTEM_WINDOW_HPP_INCLUDED
 #define _MEPHISTO_SYSTEM_WINDOW_HPP_INCLUDED
 
@@ -25,7 +26,6 @@ namespace mephisto {
 	using namespace vulkan;
 	class Window
 	{
-		RegisterAsRessource(Window);
 		public:
 		enum Flags {
 			NoFlags = 0x0,
@@ -38,7 +38,7 @@ namespace mephisto {
 			~Window() {
 				
 			}
-
+			
 			xcb_connection_t* connection() {
 				return _connection;
 			}

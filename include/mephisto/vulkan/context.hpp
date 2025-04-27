@@ -1,13 +1,14 @@
+#pragma once
 #ifndef _MEPHISTO_VULKANCONTEXT_HPP_INCLUDED
 #define _MEPHISTO_VULKANCONTEXT_HPP_INCLUDED
 
 #include <map>
 #include <set>
 #include <iostream>
+#include <cstring>
 
 #include <vulkan/vulkan.h>
 
-#include <mephisto/ressources/ressources.hpp>
 #include <mephisto/vulkan/queuefamily.hpp>
 #include <mephisto/vulkan/swapchainsupport.hpp>
 
@@ -15,7 +16,6 @@ namespace mephisto {
 	namespace vulkan {
 		class Context
 		{
-		RegisterAsRessource(Context);
 		public:
 			Context() : initialized(false) {
 				create_instance();
@@ -82,14 +82,31 @@ namespace mephisto {
 			VkInstance _instance;
 			VkPhysicalDevice _physical_device;
 			VkDevice _logical_device;
-			VkQueue _graphics_queue;
-			VkQueue _present_queue;
 			QueueFamilyIndices _qfi;
+
+			// Probablement possible de ranger autre part :
 			VkRenderPass _render_pass;
+			
 			SwapChainSupportDetails _swapchain_support;
 			VkSurfaceFormatKHR _surface_format;
+			
+		// Ça n'a rien à foutre là : (TODO URGENT pour éviter les bugs, notamment à la destruction)
+		// ce sont des outils nécessaires pour :
+			// le rendu
+			// les transferts mémoire
+			// de manière général, les "ordres"
+
+			// ça peut être que c'est ok que ce soit là
+			VkQueue _graphics_queue; // -> pour le rendu
+			VkQueue _present_queue; // -> pour la swapchain (presenting on surface)
+
+			// ça c'est sur que non 
+			// peut-être en ressources (même carrément en ressource)
+			// plutôt à mettre dans le MeshRenderer
 			VkCommandPool _command_pool;
+			// ça je sais pas... -> utilisé pour les transferts pour création de buffer
 			VkCommandPool _short_command_pool;
+		///////////////////////////////////////////////////////////////////////////////////////////
 
 			bool check_device_extensions(VkPhysicalDevice device);
 			int rate_device_suitability(VkPhysicalDevice device, VkSurfaceKHR surface);

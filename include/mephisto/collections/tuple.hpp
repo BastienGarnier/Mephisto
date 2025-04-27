@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_TUPLE_HPP_INCLUDED
 #define _MEPHISTO_TUPLE_HPP_INCLUDED
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _MEPHISTO_COMPONENTSYSTEM_HPP_INCLUDED
 #define _MEPHISTO_COMPONENTSYSTEM_HPP_INCLUDED
 
@@ -23,21 +24,22 @@ namespace mephisto {
 
 		template <typename T>
 		void create_component_storage() {
-			std::cout << Components::get_enum<T>() << std::endl;
-			instances[Components::get_enum<T>()] = (Object*)(new LinkedHoleArray<T>);
+			// TODO : avoir un truc moins dégueu (a priori pas trop dérangeant puisque appelé seulement au début)
+			if (instances.size() < (uint64_t)Component<T>::get_id()) {
+				instances.resize((uint64_t)Component<T>::get_id() + 1);
+			}
+			instances[(uint64_t)Component<T>::get_id()] = (Object*)(new LinkedHoleArray<T>);
 		}
 
 		template <typename T>
 		void destroy_component_storage() {
-			((LinkedHoleArray<T>*)(instances[Components::get_enum<T>()]))->~LinkedHoleArray();
+			delete ((LinkedHoleArray<T>*)(instances[(uint64_t)Component<T>::get_id()]));
 		}
 
 		template <typename T>
 		T* get_component(Entity *e) {
-			std::cout << Components::get_enum<T>() << std::endl;
-			constexpr ComponentId component = Components::get_enum<T>();
-			uint32_t component_indice = e->components_id[Components::get_enum<T>()];
-			return &(*((LinkedHoleArray<T>*)instances[component]))[component_indice];
+			uint32_t component_indice = e->components_id[(uint64_t)Component<T>::get_id()];
+			return &(*((LinkedHoleArray<T>*)instances[(uint64_t)(Component<T>::get_id())]))[component_indice];
 		}
 
 		// template <auto C = 0, auto unique = []{}>
@@ -49,15 +51,13 @@ namespace mephisto {
 		// 	}
 		// }
 
-
-		uint32_t count;
 		// std::vector<std::size_t> components_sizes;
-		std::unordered_map<uint32_t, Object*> instances; // table de conteneurs des instances de composants. T[i] donne le conteneur des instances du composant i.
+		std::vector<Object*> instances; // table de conteneurs des instances de composants. T[i] donne le conteneur des instances du composant i.
 	private:
 		template <typename T, typename ...Cpnts>
 		void _new_components_instances(Entity &e) {
-			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[Components::get_enum<T>()]);
-			e.components_id[Components::get_enum<T>()] = lha->new_instance();
+			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[(uint64_t)Component<T>::get_id()]);
+			e.components_id[(uint64_t)Component<T>::get_id()] = lha->new_instance();
 			if constexpr (sizeof...(Cpnts)) { // reste-t-il des arguments ?
 				_new_components_instances<Cpnts...>(e);
 			}
@@ -65,8 +65,8 @@ namespace mephisto {
 
 		template <typename T, typename ...Cpnts>
 		void _new_components_instances(Entity &e, Passer<T> &&cpnt, Passer<Cpnts>&&... components) {
-			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[Components::get_enum<T>()]);
-			e.components_id[Components::get_enum<T>()] = lha->new_instance(std::move(cpnt));
+			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[(uint64_t)Component<T>::get_id()]);
+			e.components_id[(uint64_t)Component<T>::get_id()] = lha->new_instance(std::move(cpnt));
 			if constexpr (sizeof...(Cpnts)) { // reste-t-il des arguments ?
 				_new_components_instances<Cpnts...>(e, std::forward<Passer<Cpnts>>(components)...);
 			}
@@ -74,8 +74,8 @@ namespace mephisto {
 
 		template <typename T, typename ...Cpnts>
 		void _del_components_instances(Entity &e) {
-			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[Components::get_enum<T>()]);
-			lha->del_instance(e.components_id[Components::get_enum<T>()]);
+			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[(uint64_t)Component<T>::get_id()]);
+			lha->del_instance(e.components_id[(uint64_t)Component<T>::get_id()]);
 			if constexpr (sizeof...(Cpnts)) { // reste-t-il des arguments ?
 				_del_components_instances<Cpnts...>(e);
 			}

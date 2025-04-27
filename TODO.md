@@ -23,10 +23,11 @@ Formats de fichiers à pouvoir lire :
 	- Ajouter des index buffers
 - Graphics Pipeline :
 	- Créer des fichiers JSON de construction avec les paramètres, le nom de fichier des shaders, les stages, etc...
+	- **Minimiser** le nombre de pipelines  en cours (ex. Doom Eternal a 200 pipelines pour l'entièreté du jeu)
 - Context :
 	- Fichier de configuration de contexte 
-- Pour les transferts mémoire :
-	- ajouter une transfer queue au lieu d'utiliser la graphics queue pour tout faire
+- Pour les transferts de commande :
+	- ajouter une transfer queue au lieu d'utiliser la graphics queue pour tout faire (il y a 16 queues au total sur la plupart des hardwares, toutes les queues sont lues en parallèle). Note : les commands buffers sur différentes queues sont indépendants sauf si synchronisés avec un VkSemaphore
 
 **Tout à faire :**
 - Uniform Buffers
