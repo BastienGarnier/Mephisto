@@ -34,3 +34,7 @@ Bibliothèques utilisées :
 - Vulkan
 - STL 23
 - outils spécifiques au moteur (pour l'instant, voir la TODO list ^^)
+
+## Bugs connus
+
+Le *make release* ne fonctionne plus, à cause d'une optimisation mémoire pour énumérer des types directement comme des adresses en segment de donnée.
