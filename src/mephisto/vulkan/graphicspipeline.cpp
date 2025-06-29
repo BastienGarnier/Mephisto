@@ -4,6 +4,8 @@ using namespace mephisto;
 
 using namespace vulkan;
 
+RegisterRessource(vulkan::GraphicsPipeline);
+
 GraphicsPipeline::GraphicsPipeline(Context* vk_context, const std::string& vert_filename, const std::string& frag_filename){
 	std::vector<char> vert_shader_code = read_file(vert_filename);
 	std::vector<char> frag_shader_code = read_file(frag_filename);

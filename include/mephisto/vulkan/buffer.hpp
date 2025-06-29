@@ -15,7 +15,7 @@ namespace mephisto {
 		{
 		public:
 			Buffer() : context(nullptr) {};
-			Buffer(Context* context, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+			Buffer(Context* context, VkCommandPool cp, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 			~Buffer() {}
 
 			void copy(const Buffer& b);
@@ -33,6 +33,7 @@ namespace mephisto {
 
 			Context* context;
 		private:
+			VkCommandPool _cp;
 			VkDeviceSize _size;
 			VkBuffer _buffer;
 			VkDeviceMemory _buffer_memory;

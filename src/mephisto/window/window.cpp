@@ -2,6 +2,8 @@
 
 using namespace mephisto;
 
+RegisterRessource(Window);
+
 Window::Window(unsigned short width, unsigned short height, const char *caption, Flags flags, VkInstance instance) : caption(caption) {
 	#if defined(__linux__)
 	int screen_prefer = 0;

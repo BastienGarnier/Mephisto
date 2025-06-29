@@ -8,7 +8,7 @@
 #include <cstring>
 
 #include <vulkan/vulkan.h>
-
+#include <mephisto/ressources/ressources.hpp>
 #include <mephisto/vulkan/queuefamily.hpp>
 #include <mephisto/vulkan/swapchainsupport.hpp>
 
@@ -28,13 +28,10 @@ namespace mephisto {
 				pick_physical_device(surface); // indépendant de fenêtre (seulement de système de fenêtrage)
 				create_logical_device();  // indépendant de fenêtre
 				create_render_pass();
-				create_command_pool();
 				initialized = true;
 			}
 
 			void destroy() {
-				vkDestroyCommandPool(_logical_device, _command_pool, nullptr);
-				vkDestroyCommandPool(_logical_device, _short_command_pool, nullptr);
 				vkDestroyRenderPass(_logical_device, _render_pass, nullptr);
 				vkDestroyDevice(_logical_device, nullptr);
 				vkDestroyInstance(_instance, nullptr);
@@ -62,20 +59,16 @@ namespace mephisto {
 				return _surface_format.format;
 			}
 
-			inline VkCommandPool command_pool() {
-				return _command_pool;
-			}
-
-			inline VkCommandPool short_command_pool() {
-				return _short_command_pool;
-			}
-
 			inline VkQueue graphics_queue() {
 				return _graphics_queue;
 			}
 
 			inline VkQueue present_queue() {
 				return _present_queue;
+			}
+
+			inline QueueFamilyIndices qfi() {
+				return _qfi;
 			}
 
 		private:
@@ -99,13 +92,6 @@ namespace mephisto {
 			// ça peut être que c'est ok que ce soit là
 			VkQueue _graphics_queue; // -> pour le rendu
 			VkQueue _present_queue; // -> pour la swapchain (presenting on surface)
-
-			// ça c'est sur que non 
-			// peut-être en ressources (même carrément en ressource)
-			// plutôt à mettre dans le MeshRenderer
-			VkCommandPool _command_pool;
-			// ça je sais pas... -> utilisé pour les transferts pour création de buffer
-			VkCommandPool _short_command_pool;
 		///////////////////////////////////////////////////////////////////////////////////////////
 
 			bool check_device_extensions(VkPhysicalDevice device);

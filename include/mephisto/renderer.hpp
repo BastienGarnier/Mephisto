@@ -10,7 +10,6 @@
 namespace mephisto {
 	class Renderer
 	{
-	RegisterAsComponent(Renderer);
 	public:
 		Renderer() {
 		 	pipeline = nullptr;

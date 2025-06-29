@@ -4,17 +4,11 @@
 
 #include <cstdint>
 #include <unordered_map>
-#include <iostream>
 
 namespace mephisto {
 	typedef uint32_t EntityId;
-	class Entity
+	struct Entity
 	{
-	public:
-		Entity();
-
-		~Entity();
-
 		EntityId id; 
 		std::unordered_map<uint64_t, uint32_t> components_id; // components_indices[i] donne l'indice du composant de type i dans le tableau des instances
 	};

@@ -4,6 +4,8 @@ using namespace mephisto;
 
 using namespace vulkan;
 
+RegisterRessource(Context);
+
 const std::vector<const char*> device_extensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
@@ -97,24 +99,6 @@ void Context::create_instance() {
 
 void Context::setup_debug_messenger() {
 
-}
-
-void Context::create_command_pool() {
-	VkCommandPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	poolInfo.queueFamilyIndex = _qfi.graphicsFamily.value();
-	if (vkCreateCommandPool(_logical_device, &poolInfo, nullptr, &_command_pool) != VK_SUCCESS) {
-		throw std::runtime_error("Failed to create Command Pool !");
-	}
-
-	VkCommandPoolCreateInfo shortPoolInfo{};
-	shortPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	shortPoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-	shortPoolInfo.queueFamilyIndex = _qfi.graphicsFamily.value();
-	if (vkCreateCommandPool(_logical_device, &shortPoolInfo, nullptr, &_short_command_pool) != VK_SUCCESS) {
-		throw std::runtime_error("Failed to create Command Pool !");
-	}
 }
 
 void Context::pick_physical_device(VkSurfaceKHR surface) {

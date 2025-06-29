@@ -14,7 +14,7 @@
 #include <mephisto/queries/usetquery.hpp>
 
 namespace mephisto {
-
+	
 	class MeshRenderer : Processus
 	{
 	public:
@@ -30,7 +30,6 @@ namespace mephisto {
 		void stop();
 
 		void create_synchronization_objects(VkDevice device);
-		void create_command_buffer();
 		void record_command_buffer(VkCommandBuffer command_buffer, Mesh* m, VkPipeline pipeline);
 
 		uint32_t current_frame;	

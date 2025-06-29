@@ -3,6 +3,8 @@
 using namespace mephisto;
 using namespace vulkan;
 
+RegisterRessource(Mesh);
+
 Mesh::Mesh() {
 
 }
@@ -46,16 +48,16 @@ Buffer Mesh::get_ibo() {
 	return _ibo;
 }
 
-void Mesh::create_index_buffer(Context *context) {
+void Mesh::create_index_buffer(Context *context, VkCommandPool cp) {
 	VkDeviceSize bufferSize = sizeof(_indices[0]) * _indices.size();
 
-	Buffer staging(context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+	Buffer staging(context, cp, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	staging.fill(_indices.data());
 
-	_ibo = Buffer(context, bufferSize,
+	_ibo = Buffer(context, cp, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT |
 		VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -65,16 +67,16 @@ void Mesh::create_index_buffer(Context *context) {
 	staging.destroy();
 }
 
-void Mesh::create_vertex_buffer(Context* context) {
+void Mesh::create_vertex_buffer(Context* context, VkCommandPool cp) {
 	VkDeviceSize bufferSize = sizeof(_vertices[0]) * _vertices.size();
 
-	Buffer staging(context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+	Buffer staging(context, cp, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	staging.fill(_vertices.data());
 
-	_vbo = Buffer(context, bufferSize,
+	_vbo = Buffer(context, cp, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT |
 		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);

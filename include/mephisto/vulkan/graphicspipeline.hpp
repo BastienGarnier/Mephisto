@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include <vulkan/vulkan.h>
+#include <mephisto/ressources/ressources.hpp>
 #include <mephisto/ressources/filesystem.hpp>
 #include <mephisto/mesh/vertex.hpp>
 #include <mephisto/vulkan/context.hpp>

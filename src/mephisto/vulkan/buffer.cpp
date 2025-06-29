@@ -3,7 +3,6 @@
 using namespace mephisto;
 using namespace vulkan;
 
-
 uint32_t find_memory_type(VkPhysicalDevice physical_device, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(physical_device, &memProperties);
@@ -16,8 +15,8 @@ uint32_t find_memory_type(VkPhysicalDevice physical_device, uint32_t typeFilter,
 	throw std::runtime_error("Failed to find suitable memory type !");
 }
 
-Buffer::Buffer(Context* context, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
-: context(context), _size(size) {
+Buffer::Buffer(Context* context, VkCommandPool cp, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+: context(context), _cp(cp), _size(size) {
 	VkBufferCreateInfo buffer_info{};
 	buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buffer_info.size = size;
@@ -42,14 +41,13 @@ Buffer::Buffer(Context* context, VkDeviceSize size, VkBufferUsageFlags usage, Vk
 		throw std::runtime_error("Failed to allocate vertex buffer memory !");
 	}
 	vkBindBufferMemory(context->logical_device(), _buffer, _buffer_memory, 0); // 0 : offset within region of memory
-
 }
 
 void Buffer::copy(const Buffer& b) {
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = b.context->short_command_pool();
+	allocInfo.commandPool = b._cp;
 	allocInfo.commandBufferCount = 1;
 	VkCommandBuffer commandBuffer;
 	vkAllocateCommandBuffers(b.context->logical_device(), &allocInfo, &commandBuffer);
@@ -76,7 +74,7 @@ void Buffer::copy(const Buffer& b) {
 	vkQueueSubmit(context->graphics_queue(), 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(context->graphics_queue()); // TODO : optimiser avec une fence, pour permettre d'effectuer plusieurs transferts à la fois
 
-	vkFreeCommandBuffers(context->logical_device(), context->short_command_pool(), 1, &commandBuffer);
+	vkFreeCommandBuffers(context->logical_device(), _cp, 1, &commandBuffer);
 }
 
 void Buffer::fill(void* data) {

@@ -8,7 +8,6 @@
 namespace mephisto {
 	class Transform
 	{
-	RegisterAsComponent(Transform);
 	public:
 		Transform() {}
 		~Transform() {}

@@ -25,7 +25,7 @@ namespace mephisto {
 		template <typename T>
 		void create_component_storage() {
 			// TODO : avoir un truc moins dégueu (a priori pas trop dérangeant puisque appelé seulement au début)
-			if (instances.size() < (uint64_t)Component<T>::get_id()) {
+			if (instances.size() <= (uint64_t)Component<T>::get_id()) {
 				instances.resize((uint64_t)Component<T>::get_id() + 1);
 			}
 			instances[(uint64_t)Component<T>::get_id()] = (Object*)(new LinkedHoleArray<T>);
@@ -38,6 +38,7 @@ namespace mephisto {
 
 		template <typename T>
 		T* get_component(Entity *e) {
+			// still fast if not too much components by entity ? (should maybe have vector for entity)
 			uint32_t component_indice = e->components_id[(uint64_t)Component<T>::get_id()];
 			return &(*((LinkedHoleArray<T>*)instances[(uint64_t)(Component<T>::get_id())]))[component_indice];
 		}
@@ -60,15 +61,6 @@ namespace mephisto {
 			e.components_id[(uint64_t)Component<T>::get_id()] = lha->new_instance();
 			if constexpr (sizeof...(Cpnts)) { // reste-t-il des arguments ?
 				_new_components_instances<Cpnts...>(e);
-			}
-		}
-
-		template <typename T, typename ...Cpnts>
-		void _new_components_instances(Entity &e, Passer<T> &&cpnt, Passer<Cpnts>&&... components) {
-			LinkedHoleArray<T> *lha = (LinkedHoleArray<T>*)(instances[(uint64_t)Component<T>::get_id()]);
-			e.components_id[(uint64_t)Component<T>::get_id()] = lha->new_instance(std::move(cpnt));
-			if constexpr (sizeof...(Cpnts)) { // reste-t-il des arguments ?
-				_new_components_instances<Cpnts...>(e, std::forward<Passer<Cpnts>>(components)...);
 			}
 		}
 

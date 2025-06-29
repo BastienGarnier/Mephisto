@@ -25,48 +25,46 @@ namespace mephisto {
 		~EntityManager();
 
 		template <typename ...Cpnts>
-		EntityId add_entity(Passer<Cpnts>&&... components) {
+		Entity* add_entity(Archetype_t arch) {
 			EntityId id = _entities.new_instance();
 			Entity &e = _entities[id];
 			e.id = id;
-			componentstorage._new_components_instances<Cpnts...>(e, std::forward<Passer<Cpnts>>(components)...);
-			constexpr auto entity_arch = Archetype<Cpnts...>();
+			componentstorage._new_components_instances<Cpnts...>(e);
 			for (auto& [key, query]: _queries) {
-				if (key < entity_arch) {
+				if (key < arch) {
 					query->add_entity(id);
 				}
 			}
-			return id;
+			return &e;
 		}
 
 		template <typename ...Cpnts>
-		void add_entities(uint32_t count, Passer<Cpnts>&&... components) {
+		std::vector<Entity*> add_entities(Archetype_t arch, uint32_t count) {
 			uint32_t n = count;
-			std::vector<EntityId> v;
+			std::vector<Entity*> v;
 			v.resize(count);
 			for (unsigned int i = 0; i < count; i++) {
 				EntityId id = _entities.new_instance();
 				Entity &e = _entities[id];
 				e.id = id;
-				v[i] = id;
-				componentstorage._new_components_instances<Cpnts...>(e, std::forward<Passer<Cpnts>>(components)...);
+				v[i] = &e;
+				componentstorage._new_components_instances<Cpnts...>(e);
 			}
-			constexpr auto entity_arch = Archetype<Cpnts...>();
 			for (auto& [key, query]: _queries) {
-				if (key < entity_arch) {
-					for (EntityId id : v) {
-						query->add_entity(id);
+				if (key < arch) {
+					for (Entity* e : v) {
+						query->add_entity(e->id);
 					}
 				}
 			}
+			return v;
 		}
 
 		template <typename ...Cpnts>
-		void remove_entity(EntityId eid) {
+		void remove_entity(Archetype_t arch, EntityId eid) {
 			componentstorage._del_components_instances<Cpnts...>(_entities[eid]);
-			constexpr auto entity_arch = Archetype<Cpnts...>();
 			for (auto& [key, query]: _queries) {
-				if (key < entity_arch) {
+				if (key < arch) {
 					query->remove_entity(eid);
 				}
 			}
@@ -74,35 +72,19 @@ namespace mephisto {
 			unshare(eid);
 		}
 		
-		template <class... Cpnts>
-		void add_query(EntityQuery *query) {
-			_queries[Archetype<Cpnts...>()] = query;
+		void add_query(Archetype_t arch, EntityQuery *query) {
+			_queries[arch] = query;
 		}
 
-		template <class... Cpnts>
-		EntityQuery* query() {
-			return _queries[Archetype<Cpnts...>()];
+		inline EntityQuery* query(Archetype_t arch) {
+			return _queries[arch];
 		}
 
-		Entity* get_entity(EntityId eid) {
-			return &(_entities[eid]);
-		}
-
-		void share(const std::string& name, EntityId eid) {
-			_shared.id[eid] = name;
-			_shared.name[name] = eid;
-		}
-		Entity get_shared(const std::string& name) {
-			return _entities[_shared.name[name]];
-		}
-		void unshare(const std::string& name) {
-			_shared.id.erase(_shared.name[name]);
-			_shared.name.erase(name);
-		}
-		void unshare(EntityId eid) {
-			_shared.name.erase(_shared.id[eid]);
-			_shared.id.erase(eid);	
-		}
+		Entity* get_entity(EntityId eid);
+		void share(const std::string& name, EntityId eid);
+		Entity get_shared(const std::string& name);
+		void unshare(const std::string& name);
+		void unshare(EntityId eid);
 		
 		ComponentStorage componentstorage;
 	private:

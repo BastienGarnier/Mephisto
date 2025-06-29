@@ -40,7 +40,7 @@ CFLAGS = -masm=intel -mfpmath=sse  -mfma -m64 # Y a les extensions MMX, SSE1, SS
 CFLAGS += -mmmx -msse -msse2 -mavx2 # extensions d'instructions SIMD sur les flottants
 CFLAGS += -mrdrnd -mrdseed # extensions pour les générations aléatoires physiques
 
-CPPFLAGS = -march=native -std=c++23 -masm=intel -mfpmath=sse  -mfma -m64 # Y a les extensions MMX, SSE1, SSE2 et AVX
+CPPFLAGS = -std=c++23 -masm=intel -mfpmath=sse  -mfma -m64 # Y a les extensions MMX, SSE1, SSE2 et AVX
 CPPFLAGS += -mmmx -msse -msse2 -mavx2 # extensions d'instructions SIMD sur les flottants
 CPPFLAGS += -mrdrnd -mrdseed # extensions pour les générations aléatoires physiques
 
@@ -52,9 +52,9 @@ DEFAULT_FLAGS = -pipe -Wall -pedantic -I$(INC_DIR) -I$(TEMPLATE_DIR) -MMD -MP -I
 DEFAULT_LDLIBS = -lm  -L/usr/local/gcc-14.2.0/lib/gcc/x86_64-linux-gnu/14.2.0
 
 ifeq ($(BUILD), release)
-DEFAULT_FLAGS += -DNDEBUG -Ofast # fast permet les optis mathématiques même si moins bien dans le cas général
+DEFAULT_FLAGS += -DNDEBUG -Ofast -march=native # fast permet les optis mathématiques même si moins bien dans le cas général
 else
-DEFAULT_FLAGS += -O0 -g
+DEFAULT_FLAGS += -O0
 endif
 
 ELF = $(BIN_DIR)/$(ELF_NAME)

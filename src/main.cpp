@@ -2,9 +2,12 @@
 
 #include <mephisto/application/graphicalapplication.hpp>
 #include <mephisto/vulkan/graphicspipeline.hpp>
+#include <mephisto/vulkan/commandpool.hpp>
 #include <mephisto/transform.hpp>
 #include <mephisto/renderer.hpp>
 #include <mephisto/entities/entity.hpp>
+#include <mephisto/components/archetype.hpp>
+#include <mephisto/queries/usetquery.hpp>
 #include <mephisto/mesh/meshrenderer.hpp>
 
 using namespace mephisto;
@@ -17,27 +20,25 @@ int main(int argc, const char *argv[])
 	#endif
 		GraphicalApplication game;
 
-		// game.entitymanager -> gestion des entités et composants
-		// game.ressourcesmanager -> gestion des ressources
-		// game.processusmanager ? gestion des processus 
-
 		game.entitymanager.componentstorage.create_component_storage<Transform>();
 		game.entitymanager.componentstorage.create_component_storage<Renderer>();
 
-		std::cout << Component<Transform>::get_id() << std::endl;
-		std::cout << Component<Renderer>::get_id() << std::endl;
+		Archetype_t aDisplayable = Archetype<Transform, Renderer>();
 
-		game.entitymanager.add_query<Transform, Renderer>((EntityQuery*)(new USetQuery()));
+		game.entitymanager.add_query(aDisplayable, (EntityQuery*)(new USetQuery()));
 
 		vulkan::GraphicsPipeline* test_pipeline = game.ressourcesmanager.add<vulkan::GraphicsPipeline>("test", 
 				new vulkan::GraphicsPipeline(game.context(), "data/vert.spv", "data/frag.spv"));
+
+		VkCommandPool *main_cp = game.ressourcesmanager.add<VkCommandPool>("main", vulkan::new_command_pool(game.context(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT));
+		VkCommandPool *short_cp = game.ressourcesmanager.add<VkCommandPool>("transient", vulkan::new_command_pool(game.context(), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT));
 
 		vulkan::Mesh* m = game.ressourcesmanager.add<vulkan::Mesh>("triangle", new vulkan::Mesh());
 		m->add_vertex(Vertex(-0.5, -0.5, 0.0, 0.0, 0.0, 1.0));
 		m->add_vertex(Vertex(0.5, -0.5, 0.0, 1.0, 0.0, 0.0));
 		m->add_vertex(Vertex(0.5, 0.5, 0.0, 0.0, 1.0, 0.0));
 		m->add_vertex(Vertex(-0.5, 0.5, 0.0, 1.0, 1.0, 1.0));
-		m->create_vertex_buffer(game.context());
+		m->create_vertex_buffer(game.context(), *short_cp);
 
 		m->add_indice(0);
 		m->add_indice(1);
@@ -45,16 +46,18 @@ int main(int argc, const char *argv[])
 		m->add_indice(2);
 		m->add_indice(3);
 		m->add_indice(0);
-		m->create_index_buffer(game.context());
 
-		EntityId eid = game.entitymanager.add_entity<Renderer, Transform>(Passer<Renderer>(test_pipeline, m), Passer<Transform>());
+		m->create_index_buffer(game.context(), *short_cp);
 
-		Entity *e = game.entitymanager.get_entity(eid);
+		Entity *e = game.entitymanager.add_entity<Renderer>(aDisplayable); // TODO : ajouter Transform
 		Renderer *r = game.entitymanager.componentstorage.get_component<Renderer>(e);
 		r->pipeline = test_pipeline;
 		r->mesh = m;
 
-		game.processusmanager.add((Processus*)(new MeshRenderer(&game)));
+		MeshRenderer *mr = new MeshRenderer(&game);
+		mr->query = (USetQuery*)game.entitymanager.query(aDisplayable);
+		game.processusmanager.add((Processus*)mr);
+
 
 		game.run();
 		// C'est dégueulasse. Ya forcément moyen de fait plus propre
@@ -66,6 +69,8 @@ int main(int argc, const char *argv[])
 
 		m->destroy();
 		test_pipeline->destroy(game.context());
+		vkDestroyCommandPool(game.context()->logical_device(), *main_cp, nullptr);
+		vkDestroyCommandPool(game.context()->logical_device(), *short_cp, nullptr);
 
 		game.processusmanager.destroy_all();
 	#ifndef NDEBUG

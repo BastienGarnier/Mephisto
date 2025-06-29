@@ -19,6 +19,7 @@ namespace mephisto {
 		GraphicalApplication() {
 			_context = ressourcesmanager.add<vulkan::Context>("VULKANCONTEXT", new vulkan::Context());
 			_window = ressourcesmanager.add<Window>("main", new Window(640, 480, "Test", Window::NoFlags, _context->instance()));
+			
 			_context->initialize(_window->surface());
 			_window->initialize(_context);
 

@@ -2,4 +2,4 @@
 
 using namespace mephisto;
 
-template<> uint8_t Component<Renderer>::id = 0;
+RegisterComponent(Renderer);

@@ -1,1 +1,0 @@
-Le PJ ou Personnage Joueur est un [[Personnage]] dont les actions sont commandés par les périphériques d'entrée/sortie de l'ordinateur au lieu d'être commandés par une [[Intelligence Artificielle]].

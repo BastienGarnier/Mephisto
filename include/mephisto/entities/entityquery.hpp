@@ -2,7 +2,6 @@
 #ifndef _MEPHISTO_QUERY_HPP_INCLUDED
 #define _MEPHISTO_QUERY_HPP_INCLUDED
 
-#include <vector>
 #include <cstdint>
 
 #include <mephisto/entities/entity.hpp>

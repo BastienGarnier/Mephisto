@@ -1,3 +1,0 @@
-#pragma once
-
-#define MEPHISTO_COMPONENT_ID_OFFSET 0x20000000

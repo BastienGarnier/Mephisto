@@ -12,13 +12,19 @@ namespace mephisto {
 	class RessourcesManager
 	{
 	public:
-		RessourcesManager() {}
+		RessourcesManager() : _ressources(1) {
+
+		}
 		~RessourcesManager() {
 			
 		}
 
 		template <typename T>
 		T* add(std::string name, T* ress) {
+			// TODO : faire un truc moins dégueu 
+			if (_ressources.size() <= (uint64_t)Ressource<T>::get_id()) {
+				_ressources.resize((uint64_t)Ressource<T>::get_id() + 1);
+			}
 			_ressources[(uint64_t)Ressource<T>::get_id()][name] = Object::make(ress);
 			return ress;
 		}
@@ -49,7 +55,7 @@ namespace mephisto {
 			return _ressources[(uint64_t)Ressource<T>::get_id()];
 		}
 		
-		std::unordered_map<uint64_t, std::unordered_map<std::string, Object*>> _ressources; // ressources[i] donne la table des ressources de type Ressources::get_type<i>()
+		std::vector<std::unordered_map<std::string, Object*>> _ressources; // ressources[i] donne la table des ressources de type Ressources::get_type<i>()
 	};
 }
 #endif

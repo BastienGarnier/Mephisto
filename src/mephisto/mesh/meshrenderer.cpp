@@ -21,7 +21,7 @@ MeshRenderer::MeshRenderer(GraphicalApplication *app) : app(app) {
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // possibly SECONDARY
-	allocInfo.commandPool = context->command_pool();
+	allocInfo.commandPool = *(app->ressourcesmanager.get<VkCommandPool>("main"));
 	allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
 	if (vkAllocateCommandBuffers(context->logical_device(), &allocInfo, command_buffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to allocate command buffers !");
@@ -53,21 +53,6 @@ void MeshRenderer::create_synchronization_objects(VkDevice device) {
 	}
 }
 
-
-void MeshRenderer::create_command_buffer() {
-	Context* context = app->context();
-	command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // possibly SECONDARY
-	allocInfo.commandPool = context->command_pool();
-	allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
-	if (vkAllocateCommandBuffers(context->logical_device(), &allocInfo, command_buffers.data()) != VK_SUCCESS) {
-		throw std::runtime_error("Failed to allocate command buffers !");
-	}
-}
-
 void MeshRenderer::record_command_buffer(VkCommandBuffer command_buffer, Mesh* m, VkPipeline pipeline) {
 	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
@@ -82,7 +67,6 @@ void MeshRenderer::record_command_buffer(VkCommandBuffer command_buffer, Mesh* m
 }
 
 void MeshRenderer::start() {
-	query = (USetQuery*)app->entitymanager.query<Transform, Renderer>();
 }
 
 void MeshRenderer:: update() {

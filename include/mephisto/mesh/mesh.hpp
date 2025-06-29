@@ -30,8 +30,8 @@ namespace mephisto {
 			std::vector<uint16_t> get_indices();
 			Buffer get_vbo();
 			Buffer get_ibo();
-			void create_vertex_buffer(Context *context);
-			void create_index_buffer(Context *context);
+			void create_vertex_buffer(Context *context, VkCommandPool cp);
+			void create_index_buffer(Context *context, VkCommandPool cp);
 			void add_vertex(Vertex v);
 			void add_indice(uint16_t i);
 			Context *context;

@@ -3,118 +3,43 @@
 #define _MEPHISTO_CORE_COMPONENTS_TYPESENUM_HPP_INCLUDED
 
 #include <stdint.h>
+#include <iostream>
 
 #include <type_traits>
 #include <tuple>
 
-#include <mephisto/components/sysconstants.hpp>
+#include <mephisto/utilities.hpp>
+#include <mephisto/components/constants.hpp>
 
-#define RegisterAsComponent(COMPONENT) [[maybe_unused]] constinit const static bool __mephisto_component_declaration_hack = (mephisto::Components::declare<COMPONENT>(), true)
+extern size_t _components_start;
+extern size_t _components_end;
+
+#define RegisterComponent(COMPONENT) template class mephisto::Component<COMPONENT>; template<> uint8_t mephisto::Component<COMPONENT>::id = 0
 
 #pragma GCC diagnostic ignored "-Wnon-template-friend"
 
 namespace mephisto {
-	template <typename T>
+	template <typename T = void>
 	class Component
 	{
 	public:
 		inline static constexpr const uint64_t get_id()
 		{
-			return ((uint64_t)(&id) - MEPHISTO_COMPONENT_ID_OFFSET);
+			return ((uint64_t)(&id) - (uint64_t)(&_components_start));
 		}
 	private:
 		static uint8_t __attribute__((section(".componentsSection"))) id;
 	};
 
-	namespace Components {
-		template<typename T>
-		constexpr uint64_t type_id()
-		{
-			static constexpr int id;
-			return (uint64_t)&id;
-		};
-
-		namespace _details {
-			template<class...> struct type_list {};
-
-			template<auto> struct nth {
-				consteval auto friend gett(nth);
-			};
-			template<auto N, class T> struct sett {
-				consteval auto friend gett(nth<N>) {
-					return T{};
-				}
-			}; 
-
-			template<class> struct numbering {
-				consteval auto friend getn(numbering);
-			};
-
-			template<auto N, class T> struct setn {
-				consteval auto friend getn(numbering<T>) {
-					return N;
-				}
-			};
-
-			template<auto> struct nthl {
-				consteval auto friend getl(nthl);
-			};
-
-			template<auto N, class T> struct setl {
-				consteval auto friend getl(nthl<N>) {
-					return T{};
-				}
-			}; 
-			
-			template<class T, template<class...> class TList, class... Ts> auto append(TList<Ts...>) -> TList<Ts..., T>;
-		} // namespace _details
-
-		template<class T, auto N = 0, auto unique = []{}>
-		consteval auto declare() {
-			if constexpr (requires { getl(_details::nthl<N>{}); }) {
-				declare<T, N+1, unique>();
-			} else if constexpr (N == 0) {
-				void(_details::sett<N, T>{});
-				void(_details::setn<N, T>{});
-				void(_details::setl<N, _details::type_list<T>>{});
-			} else {
-				void(_details::sett<N, T>{});
-				void(_details::setn<N, T>{});
-				void(_details::setl<N, decltype(_details::append<T>(getl(_details::nthl<N-1>{})))>{});
-			}
+	typedef Component<void> Components;
+	template <>
+	class Component<void>
+	{
+	public:
+		inline static size_t count() {
+			return (size_t)(&_components_end) - (size_t)(&_components_start);
 		}
-
-		template<auto unique = []{}, auto N = 0>
-		consteval auto get_list() {
-			if constexpr (requires { getl(_details::nthl<N>{}); }) {
-				return get_list<unique, N+1>();
-			} else if constexpr (N == 0) {
-				return _details::type_list{};
-			} else {
-				return getl(_details::nthl<N>{});
-			}
-		}
-
-		template<auto N = 0, auto unique = []{}>
-		consteval auto get_count() {
-			if constexpr (requires{getl(_details::nthl<N>{}); }) {
-				return get_count<N+1, unique>();
-			} else {
-				return N;
-			}
-		}
-
-		template<class T, auto unique = []{}>
-		consteval auto get_enum() {
-			return getn(_details::numbering<T>{});
-		}
-
-		template<auto N, auto unique = []{}>
-		consteval auto get_type() {
-			return gett(_details::nth<N>{});
-		}
-		
-	}
+	};
 }
 
 #endif

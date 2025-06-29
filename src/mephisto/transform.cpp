@@ -2,4 +2,4 @@
 
 using namespace mephisto;
 
-template<> uint8_t Component<Transform>::id = 0;
+RegisterComponent(Transform);
